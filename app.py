@@ -27,24 +27,35 @@ st.title('Claim Days to Payment Table')
 # Display the filter controls
 st.sidebar.header('Filter by Days to Payment')
 
-# Get the minimum and maximum values for the slider range
+# Get the minimum and maximum values for the number inputs
 min_days_payment = int(df['Days to Payment'].min())
 max_days_payment = int(df['Days to Payment'].max())
 
-# Slider to filter by days
-min_days, max_days = st.sidebar.slider(
-    'Select the range of Days to Payment',
+# Number input to allow precise range input
+min_days = st.sidebar.number_input(
+    'Minimum Days to Payment',
     min_value=min_days_payment, 
     max_value=max_days_payment, 
-    value=(min_days_payment, max_days_payment)
+    value=min_days_payment
 )
 
-# Filter the DataFrame based on the selected range
-filtered_df = df[(df['Days to Payment'] >= min_days) & (df['Days to Payment'] <= max_days)]
+max_days = st.sidebar.number_input(
+    'Maximum Days to Payment',
+    min_value=min_days_payment, 
+    max_value=max_days_payment, 
+    value=max_days_payment
+)
 
-# Sort the filtered DataFrame by "Days to Payment" (ascending order)
-df_sorted = filtered_df.sort_values(by='Days to Payment', ascending=True)
+# Ensure the minimum days value is less than or equal to the maximum days value
+if min_days > max_days:
+    st.sidebar.error("Minimum days cannot be greater than maximum days")
+else:
+    # Filter the DataFrame based on the selected range
+    filtered_df = df[(df['Days to Payment'] >= min_days) & (df['Days to Payment'] <= max_days)]
 
-# Display the filtered and sorted DataFrame
-st.write(f'Displaying claims with Days to Payment between {min_days} and {max_days}:')
-st.dataframe(df_sorted)
+    # Sort the filtered DataFrame by "Days to Payment" (ascending order)
+    df_sorted = filtered_df.sort_values(by='Days to Payment', ascending=True)
+
+    # Display the filtered and sorted DataFrame
+    st.write(f'Displaying claims with Days to Payment between {min_days} and {max_days}:')
+    st.dataframe(df_sorted)
