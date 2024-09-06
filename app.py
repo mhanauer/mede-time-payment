@@ -27,12 +27,16 @@ st.title('Claim Days to Payment Table')
 # Display the filter controls
 st.sidebar.header('Filter by Days to Payment')
 
+# Get the minimum and maximum values for the slider range
+min_days_payment = int(df['Days to Payment'].min())
+max_days_payment = int(df['Days to Payment'].max())
+
 # Slider to filter by days
 min_days, max_days = st.sidebar.slider(
     'Select the range of Days to Payment',
-    min_value=int(df['Days to Payment'].min()), 
-    max_value=int(df['Days to Payment'].max()), 
-    value=(int(df['Days to Payment'].min()), int(df['Days to Payment'].max()))
+    min_value=min_days_payment, 
+    max_value=max_days_payment, 
+    value=(min_days_payment, max_days_payment)
 )
 
 # Filter the DataFrame based on the selected range
