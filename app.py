@@ -42,9 +42,6 @@ min_days, max_days = st.sidebar.slider(
 # Filter the DataFrame based on the selected range
 filtered_df = df[(df['Days to Payment'] >= min_days) & (df['Days to Payment'] <= max_days)]
 
-# Sort the filtered DataFrame by "Days to Payment" (ascending order)
-df_sorted = filtered_df.sort_values(by='Days to Payment', ascending=True)
-
 # Display the filtered and sorted DataFrame
 st.write(f'Displaying claims with Days to Payment between {min_days} and {max_days}:')
-st.dataframe(df_sorted)
+st.dataframe(filtered_df)
