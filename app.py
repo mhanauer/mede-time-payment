@@ -13,7 +13,7 @@ def generate_data(num_rows):
         'Claim ID': claim_ids,
         'CPT Code': cpt_codes,
         'Diagnosis': diagnoses,
-        'Days to Payment': days_to_payment
+        'Predicted Days to Payment': days_to_payment
     }
     
     return pd.DataFrame(data)
@@ -22,7 +22,7 @@ def generate_data(num_rows):
 df = generate_data(50)
 
 # Title of the app
-st.title('Claim Days to Payment Table')
+st.title('Mede Predicted Days to Payment Demo')
 
 # Display the filter controls
 st.sidebar.header('Filter by Days to Payment')
@@ -51,7 +51,7 @@ if min_days > max_days:
     st.sidebar.error("Minimum days cannot be greater than maximum days")
 else:
     # Filter the DataFrame based on the selected range
-    filtered_df = df[(df['Days to Payment'] >= min_days) & (df['Days to Payment'] <= max_days)]
+    filtered_df = df[(df['Predicted Days to Payment'] >= min_days) & (df['Predicted Days to Payment'] <= max_days)]
 
     # Sort the filtered DataFrame by "Days to Payment" (ascending order)
     df_sorted = filtered_df.sort_values(by='Days to Payment', ascending=True)
