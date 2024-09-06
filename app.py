@@ -28,8 +28,8 @@ st.title('Mede Predicted Days to Payment Demo')
 st.sidebar.header('Filter by Days to Payment')
 
 # Get the minimum and maximum values for the number inputs
-min_days_payment = int(df['Days to Payment'].min())
-max_days_payment = int(df['Days to Payment'].max())
+min_days_payment = int(df['Predicted Days to Payment'].min())
+max_days_payment = int(df['Predicted Days to Payment'].max())
 
 # Number input to allow precise range input
 min_days = st.sidebar.number_input(
@@ -53,9 +53,9 @@ else:
     # Filter the DataFrame based on the selected range
     filtered_df = df[(df['Predicted Days to Payment'] >= min_days) & (df['Predicted Days to Payment'] <= max_days)]
 
-    # Sort the filtered DataFrame by "Days to Payment" (ascending order)
-    df_sorted = filtered_df.sort_values(by='Days to Payment', ascending=True)
+    # Sort the filtered DataFrame by "Predicted Days to Payment" (ascending order)
+    df_sorted = filtered_df.sort_values(by='Predicted Days to Payment', ascending=True)
 
     # Display the filtered and sorted DataFrame
-    st.write(f'Displaying claims with Days to Payment between {min_days} and {max_days}:')
+    st.write(f'Displaying claims with Predicted Days to Payment between {min_days} and {max_days}:')
     st.dataframe(df_sorted)
