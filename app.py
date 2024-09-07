@@ -23,6 +23,7 @@ df = generate_data(50)
 
 # Title of the app
 st.title('Mede Predicted Days to Payment Demo')
+st.markdown('The Mede payment prediction model forecasts the number of days until payment within a 3-day range.')
 
 # Display the filter controls
 st.sidebar.header('Filter by Days to Payment')
