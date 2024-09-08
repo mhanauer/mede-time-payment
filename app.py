@@ -1,62 +1,49 @@
 import streamlit as st
 import pandas as pd
-import random
+import plotly.express as px
+from datetime import datetime, timedelta
 
-# Function to generate random data
-def generate_data(num_rows):
-    claim_ids = [random.randint(1000, 9999) for _ in range(num_rows)]
-    cpt_codes = random.choices(['99213', '80050', '99214', '99381', '99215', '85025', '93000'], k=num_rows)
-    diagnoses = random.choices(['Hypertension', 'Diabetes', 'Asthma'], k=num_rows)
-    days_to_payment = [random.randint(1, 90) for _ in range(num_rows)]  # Generate random days between 1 and 90
-    
+# Sample Data Creation
+def create_sample_data():
     data = {
-        'Claim ID': claim_ids,
-        'CPT Code': cpt_codes,
-        'Diagnosis': diagnoses,
-        'Predicted Days to Payment': days_to_payment
+        'Claim ID': [1001, 1002, 1003, 1004, 1005],
+        'CPT Code': ['99213', '99214', '99215', '99213', '99214'],
+        'Date': ['2023-09-01', '2023-09-02', '2023-09-03', '2023-09-01', '2023-09-04'],
+        'Days to Payment': [30, 45, 40, 35, 50],
+        'Predicted Payment Date': [
+            (datetime.strptime('2023-09-01', '%Y-%m-%d') + timedelta(days=30)).strftime('%Y-%m-%d'),
+            (datetime.strptime('2023-09-02', '%Y-%m-%d') + timedelta(days=45)).strftime('%Y-%m-%d'),
+            (datetime.strptime('2023-09-03', '%Y-%m-%d') + timedelta(days=40)).strftime('%Y-%m-%d'),
+            (datetime.strptime('2023-09-01', '%Y-%m-%d') + timedelta(days=35)).strftime('%Y-%m-%d'),
+            (datetime.strptime('2023-09-04', '%Y-%m-%d') + timedelta(days=50)).strftime('%Y-%m-%d')
+        ]
     }
-    
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    return df
 
-# Generate 50 rows of data
-df = generate_data(50)
+# Load Data
+df = create_sample_data()
 
-# Title of the app
-st.title('Mede Predicted Days to Payment Demo')
-st.markdown('The Mede payment prediction model forecasts the number of days until payment within a 3-day range.')
+# Streamlit app layout
+st.title('Time to Payment Prediction Application')
 
-# Display the filter controls
-st.sidebar.header('Filter by Days to Payment')
+# Filter by CPT Code (default: all)
+cpt_codes = df['CPT Code'].unique()
+selected_cpt_code = st.selectbox('Filter by CPT Code:', options=['All'] + list(cpt_codes), index=0)
 
-# Get the minimum and maximum values for the number inputs
-min_days_payment = int(df['Predicted Days to Payment'].min())
-max_days_payment = int(df['Predicted Days to Payment'].max())
+if selected_cpt_code != 'All':
+    df = df[df['CPT Code'] == selected_cpt_code]
 
-# Number input to allow precise range input
-min_days = st.sidebar.number_input(
-    'Minimum Days to Payment',
-    min_value=min_days_payment, 
-    max_value=max_days_payment, 
-    value=min_days_payment
-)
+# Display the data
+st.subheader('Claim Data')
+st.write(df)
 
-max_days = st.sidebar.number_input(
-    'Maximum Days to Payment',
-    min_value=min_days_payment, 
-    max_value=max_days_payment, 
-    value=max_days_payment
-)
+# Group by predicted payment date and calculate total predicted payments
+df['Predicted Payment Date'] = pd.to_datetime(df['Predicted Payment Date'])
+payment_summary = df.groupby('Predicted Payment Date').size().reset_index(name='Total Payments')
 
-# Ensure the minimum days value is less than or equal to the maximum days value
-if min_days > max_days:
-    st.sidebar.error("Minimum days cannot be greater than maximum days")
-else:
-    # Filter the DataFrame based on the selected range
-    filtered_df = df[(df['Predicted Days to Payment'] >= min_days) & (df['Predicted Days to Payment'] <= max_days)]
+# Plotly Time Series Chart
+st.subheader('Total Predicted Payment by Date')
+fig = px.line(payment_summary, x='Predicted Payment Date', y='Total Payments', title='Total Predicted Payments Over Time')
 
-    # Sort the filtered DataFrame by "Predicted Days to Payment" (ascending order)
-    df_sorted = filtered_df.sort_values(by='Predicted Days to Payment', ascending=True)
-
-    # Display the filtered and sorted DataFrame
-    st.write(f'Displaying claims with Predicted Days to Payment between {min_days} and {max_days}:')
-    st.dataframe(df_sorted)
+st.plotly_chart(fig)
