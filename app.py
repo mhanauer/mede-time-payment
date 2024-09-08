@@ -2,22 +2,44 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
+import random
 
-# Sample Data Creation
+# Function to create sample data
 def create_sample_data():
+    start_date = datetime.strptime('2023-01-01', '%Y-%m-%d')
+    end_date = start_date + timedelta(days=180)
+    
+    claim_ids = []
+    cpt_codes = []
+    dates = []
+    days_to_payment = []
+    predicted_payment_dates = []
+    allowed_amounts = []
+
+    # Generate at least 10 claims per day for a 6-month period
+    while start_date <= end_date:
+        num_claims = random.randint(10, 15)  # Random between 10 and 15 claims per day
+        for _ in range(num_claims):
+            claim_ids.append(random.randint(1000, 9999))
+            cpt_codes.append(random.choice(['99213', '99214', '99215']))
+            dates.append(start_date.strftime('%Y-%m-%d'))
+            payment_days = random.randint(30, 60)  # Random days to payment
+            days_to_payment.append(payment_days)
+            predicted_payment_date = start_date + timedelta(days=payment_days)
+            predicted_payment_dates.append(predicted_payment_date.strftime('%Y-%m-%d'))
+            allowed_amounts.append(round(random.uniform(100, 500), 2))  # Random allowed amount between 100 and 500
+        
+        start_date += timedelta(days=1)
+    
     data = {
-        'Claim ID': [1001, 1002, 1003, 1004, 1005],
-        'CPT Code': ['99213', '99214', '99215', '99213', '99214'],
-        'Date': ['2023-09-01', '2023-09-02', '2023-09-03', '2023-09-01', '2023-09-04'],
-        'Days to Payment': [30, 45, 40, 35, 50],
-        'Predicted Payment Date': [
-            (datetime.strptime('2023-09-01', '%Y-%m-%d') + timedelta(days=30)).strftime('%Y-%m-%d'),
-            (datetime.strptime('2023-09-02', '%Y-%m-%d') + timedelta(days=45)).strftime('%Y-%m-%d'),
-            (datetime.strptime('2023-09-03', '%Y-%m-%d') + timedelta(days=40)).strftime('%Y-%m-%d'),
-            (datetime.strptime('2023-09-01', '%Y-%m-%d') + timedelta(days=35)).strftime('%Y-%m-%d'),
-            (datetime.strptime('2023-09-04', '%Y-%m-%d') + timedelta(days=50)).strftime('%Y-%m-%d')
-        ]
+        'Claim ID': claim_ids,
+        'CPT Code': cpt_codes,
+        'Date': dates,
+        'Days to Payment': days_to_payment,
+        'Predicted Payment Date': predicted_payment_dates,
+        'Allowed Amount': allowed_amounts
     }
+    
     df = pd.DataFrame(data)
     return df
 
@@ -38,12 +60,12 @@ if selected_cpt_code != 'All':
 st.subheader('Claim Data')
 st.write(df)
 
-# Group by predicted payment date and calculate total predicted payments
+# Group by predicted payment date and calculate total allowed amounts
 df['Predicted Payment Date'] = pd.to_datetime(df['Predicted Payment Date'])
-payment_summary = df.groupby('Predicted Payment Date').size().reset_index(name='Total Payments')
+payment_summary = df.groupby('Predicted Payment Date')['Allowed Amount'].sum().reset_index()
 
 # Plotly Time Series Chart
-st.subheader('Total Predicted Payment by Date')
-fig = px.line(payment_summary, x='Predicted Payment Date', y='Total Payments', title='Total Predicted Payments Over Time')
+st.subheader('Total Allowed Amount by Date')
+fig = px.line(payment_summary, x='Predicted Payment Date', y='Allowed Amount', title='Total Allowed Amount Over Time')
 
 st.plotly_chart(fig)
