@@ -60,12 +60,14 @@ if selected_cpt_code != 'All':
 st.subheader('Claim Data')
 st.write(df)
 
-# Group by predicted payment date and calculate total allowed amounts
+# Convert 'Predicted Payment Date' to datetime format for easier manipulation
 df['Predicted Payment Date'] = pd.to_datetime(df['Predicted Payment Date'])
+
+# Group by predicted payment date and calculate the total allowed amount
 payment_summary = df.groupby('Predicted Payment Date')['Allowed Amount'].sum().reset_index()
 
-# Plotly Time Series Chart
-st.subheader('Total Allowed Amount by Date')
+# Plotly Time Series Chart: Total Allowed Amount by Predicted Payment Date
+st.subheader('Total Allowed Amount by Predicted Payment Date')
 fig = px.line(payment_summary, x='Predicted Payment Date', y='Allowed Amount', title='Total Allowed Amount Over Time')
 
 st.plotly_chart(fig)
